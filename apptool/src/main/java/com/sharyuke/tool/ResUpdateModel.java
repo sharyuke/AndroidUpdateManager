@@ -1,10 +1,10 @@
 package com.sharyuke.tool;
 
 /**
- * UpdateResModel
+ * ResUpdateModel
  * Created by sharyuke on 15-6-18.
  */
-public interface UpdateResModel {
+public interface ResUpdateModel {
     int getVersionCode();
 
     String getVersionName();

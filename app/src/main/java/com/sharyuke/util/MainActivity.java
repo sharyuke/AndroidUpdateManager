@@ -57,7 +57,7 @@ public class MainActivity extends Activity {
 
         @POST("/app/terminalapi/call")
         @FormUrlEncoded
-        Observable<ResCheckVersion> checkVersion(@Field("requestValue") BaseReqModel reqModel);
+        Observable<ResUpdateCheckVersion> checkVersion(@Field("requestValue") BaseReqModel reqModel);
     }
 
 }

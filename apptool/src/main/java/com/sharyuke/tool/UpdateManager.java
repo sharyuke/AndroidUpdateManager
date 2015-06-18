@@ -18,8 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.inject.Singleton;
-
 import retrofit.RetrofitError;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -36,7 +34,7 @@ public class UpdateManager {
 
     protected CompositeSubscription subscription = new CompositeSubscription();
 
-    private Observable<? extends UpdateResModel> updateApi;
+    private Observable<? extends ResUpdateModel> updateApi;
 
     private String downloadUrl;
 
@@ -82,12 +80,12 @@ public class UpdateManager {
         return status;
     }
 
-    public UpdateManager initUpdateManager(Observable<? extends UpdateResModel> updateApi, String downloadUrl, int versionCode) {
+    public UpdateManager initUpdateManager(Observable<? extends ResUpdateModel> updateApi, String downloadUrl, int versionCode) {
         setUpdateApi(updateApi).setDownloadUrl(downloadUrl).setVersionCode(versionCode);
         return this;
     }
 
-    public UpdateManager setUpdateApi(Observable<? extends UpdateResModel> updateApi) {
+    public UpdateManager setUpdateApi(Observable<? extends ResUpdateModel> updateApi) {
         this.updateApi = updateApi;
         return this;
     }
@@ -210,7 +208,7 @@ public class UpdateManager {
                 }));
     }
 
-    private void versionInfo(UpdateResModel resCheckVersion, boolean isSaliently) {
+    private void versionInfo(ResUpdateModel resCheckVersion, boolean isSaliently) {
         status = Status.NORMAL;
         updateStatus();
         if (resCheckVersion.getVersionCode() > versionCode) {

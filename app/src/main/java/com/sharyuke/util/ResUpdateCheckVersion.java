@@ -1,12 +1,12 @@
 package com.sharyuke.util;
 
-import com.sharyuke.tool.UpdateResModel;
+import com.sharyuke.tool.ResUpdateModel;
 
 /**
- * ResCheckVersion
+ * ResUpdateCheckVersion
  * Created by sharyuke on 15-6-8.
  */
-public class ResCheckVersion implements UpdateResModel {
+public class ResUpdateCheckVersion implements ResUpdateModel {
     public String version_name;
     public String method;
     public int version_code;
