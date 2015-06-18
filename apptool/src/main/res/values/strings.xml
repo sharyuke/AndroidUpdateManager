@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">AppTool</string>
+    <string name="dialog_update_title">更新</string>
+    <string name="dialog_update_msg">发现新版本，版本号：%s，是否立即更新，必须更新，不然不能使用APP</string>
+    <string name="dialog_update_btnupdate">更新</string>
+    <string name="dialog_update_btnnext">退出</string>
+    <string name="dialog_downloading_msg">正在下载更新。。。</string>
+</resources>
