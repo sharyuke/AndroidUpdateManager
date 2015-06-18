@@ -27,7 +27,6 @@ import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
-@Singleton
 public class UpdateManager {
     private static final String UPDATE_SAVE_NAME = "Passionlife.apk";
 
@@ -162,7 +161,7 @@ public class UpdateManager {
             RetrofitError cause = (RetrofitError) throwable;
             switch (cause.getKind()) {
                 case NETWORK:
-                    ToastHelper.get(activity).showShort("检查更新连接服务器失败");
+                    ToastHelper.get(activity).showShort("you have the last version");
                     break;
                 case CONVERSION:
                     break;
@@ -225,7 +224,7 @@ public class UpdateManager {
                         activity.finish();
                     }).show();
         } else if (!isSaliently) {
-            ToastHelper.get(activity).showShort("您的app已经是最新版本");
+            ToastHelper.get(activity).showShort("could not connect the server");
         }
     }
 

@@ -3,14 +3,27 @@ apply plugin: 'me.tatarka.retrolambda'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
+Properties versionFile = new Properties();
+versionFile.load(project.rootProject.file('apptool/version.properties').newDataInputStream())
+def major = versionFile.getProperty('major')
+def patch = versionFile.getProperty('patch')
+def build = versionFile.getProperty('build')
+
+def siteUrl = 'https://github.com/sharyuke/Util.git' // 项目的主页
+def gitUrl = 'https://github.com/sharyuke/Util.git' // Git仓库的url
+
+group = "com.sharyuke" // Maven Group ID for the artifact，一般填你唯一的包名
+version = major.toString() + '.' + patch.toString() + '.' + build.toString()
+
 android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
+    resourcePrefix 'pre'
     defaultConfig {
         minSdkVersion 8
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        versionCode major.toInteger() * 100 + patch.toInteger() * 10 + build.toInteger()
+        versionName version
     }
     buildTypes {
         release {
@@ -24,69 +37,69 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    def siteUrl = 'https://github.com/saymagic/AndroidUtils' // 项目的主页
-    def gitUrl = 'https://github.com/saymagic/AndroidUtils.git' // Git仓库的url
-    group = "com.sharyuke" // Maven Group ID for the artifact，一般填你唯一的包名
+}
 
-    install {
-        repositories.mavenInstaller {// This generates POM.xml with proper parameters
-            pom {
-                project {
-                    packaging 'aar'
-                    name 'Android app update manager utils' //项目描述
-//                    url siteUrl
-                    licenses {
-                        license {
-                            name 'The Apache Software License, Version 2.0'
-                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        }
+
+
+install {
+    repositories.mavenInstaller {// This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+                name 'Android app update manager utils' //项目描述
+                url siteUrl
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
-                    developers {
-                        developer {
-                            name 'sharyuke'
-                            email '363564023@qq.com'
-                        }
+                }
+                developers {
+                    developer {
+                        name 'sharyuke'
+                        email '363564023@qq.com'
                     }
-//                      scm {
-//                        connection gitUrl
-//                        developerConnection gitUrl
-//                        url siteUrl
-//                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
                 }
             }
         }
     }
+}
 
-    task sourcesJar(type: Jar) {
-        from android.sourceSets.main.java.srcDirs
-        classifier = 'sources'
-    }
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
 
-    task javadoc(type: Javadoc) {
-        source = android.sourceSets.main.java.srcDirs
-        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    }
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
 
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
 
-    artifacts {
-        archives javadocJar
-        archives sourcesJar
-    }
-    bintray {
-        user = 'sharyuke'
-        key = '4ce221448d66eec308cc663f54b621e2285d5694'
-        configurations = ['archives']
-        pkg {
-            repo = 'maven'
-            name = "util"
-            websiteUrl = 'www.sharyuke.com'
-            licenses = ['apache-2.0']
-            publish = true
-        }
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+bintray {
+    user = 'sharyuke'
+    key = '4ce221448d66eec308cc663f54b621e2285d5694'
+    configurations = ['archives']
+    pkg {
+        repo = 'maven'
+        name = "util"
+        websiteUrl = 'www.sharyuke.com'
+        vcsUrl = gitUrl
+        licenses = ['apache-2.0']
+        publish = true
     }
 }
 
