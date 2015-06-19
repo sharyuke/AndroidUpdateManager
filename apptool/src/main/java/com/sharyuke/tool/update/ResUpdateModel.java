@@ -1,4 +1,4 @@
-package com.sharyuke.tool;
+package com.sharyuke.tool.update;
 
 /**
  * ResUpdateModel

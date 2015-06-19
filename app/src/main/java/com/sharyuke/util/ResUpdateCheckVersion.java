@@ -1,6 +1,6 @@
 package com.sharyuke.util;
 
-import com.sharyuke.tool.ResUpdateModel;
+import com.sharyuke.tool.update.ResUpdateModel;
 
 /**
  * ResUpdateCheckVersion

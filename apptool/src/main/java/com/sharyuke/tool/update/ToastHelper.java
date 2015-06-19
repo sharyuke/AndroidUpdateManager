@@ -1,4 +1,4 @@
-package com.sharyuke.tool;
+package com.sharyuke.tool.update;
 
 import android.content.Context;
 import android.os.Handler;
@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.sharyuke.tool.R;
 
 public class ToastHelper {
 

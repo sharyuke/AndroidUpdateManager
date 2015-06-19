@@ -3,7 +3,7 @@ package com.sharyuke.util;
 import android.app.Activity;
 import android.os.Bundle;
 
-import com.sharyuke.tool.UpdateManager;
+import com.sharyuke.tool.update.UpdateManager;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
