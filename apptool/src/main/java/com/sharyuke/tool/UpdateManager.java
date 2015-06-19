@@ -159,7 +159,7 @@ public class UpdateManager {
             RetrofitError cause = (RetrofitError) throwable;
             switch (cause.getKind()) {
                 case NETWORK:
-                    ToastHelper.get(activity).showShort("you have the last version");
+                    ToastHelper.get(activity).showShort(R.string.toast_connect_error);
                     break;
                 case CONVERSION:
                     break;
@@ -222,7 +222,7 @@ public class UpdateManager {
                         activity.finish();
                     }).show();
         } else if (!isSaliently) {
-            ToastHelper.get(activity).showShort("could not connect the server");
+            ToastHelper.get(activity).showShort(R.string.toast_last_version);
         }
     }
 
