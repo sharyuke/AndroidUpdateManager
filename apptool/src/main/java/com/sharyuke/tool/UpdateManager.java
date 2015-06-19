@@ -2,8 +2,8 @@ package com.sharyuke.tool;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
@@ -50,6 +50,8 @@ public class UpdateManager {
 
     private UpdateStatus updateStatus;
 
+    private Dialog askDialog;
+
     public static UpdateManager getInstance() {
         synchronized (UpdateManager.class) {
             if (mUpdateManager == null) {
@@ -70,6 +72,7 @@ public class UpdateManager {
         NORMAL,
         CHECKING,
         DOWNLOADING,
+        ASKING,
     }
 
     public Bus getBus() {
@@ -111,12 +114,6 @@ public class UpdateManager {
         updateProgressDialog.setMax(100);
         updateProgressDialog.setProgress(0);
         updateProgressDialog.show();
-        updateProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "cancel", (dialog, which) -> {
-            cancelDownLoad();
-        });
-        updateProgressDialog.setButton(DialogInterface.BUTTON_POSITIVE, "hint", (dialog, which) -> {
-            updateProgressDialog.dismiss();
-        });
         status = Status.DOWNLOADING;
         updateStatus();
     }
@@ -133,23 +130,27 @@ public class UpdateManager {
     }
 
     public void checkUpdate(Activity activity, boolean isSaliently) {
-        this.activity = activity;
-        switch (status) {
-            case NORMAL:
-                status = Status.CHECKING;
-                updateStatus();
-                subscription.add(updateApi
-                        .doOnError(throwable -> status = Status.NORMAL)
-                        .doOnError(throwable1 -> updateStatus())
-                        .doOnError((throwable2) -> handleError(throwable2, isSaliently))
-                        .onErrorResumeNext(Observable.empty())
-                        .subscribe((updateResModel) -> versionInfo(updateResModel, isSaliently)));
-                break;
-            case CHECKING:
-                break;
-            case DOWNLOADING:
-                updateProgressDialog.show();
-                break;
+        synchronized (this) {
+            this.activity = activity;
+            switch (status) {
+                case NORMAL:
+                    status = Status.CHECKING;
+                    updateStatus();
+                    subscription.add(updateApi
+                            .doOnError(throwable -> status = Status.NORMAL)
+                            .doOnError(throwable1 -> updateStatus())
+                            .doOnError((throwable2) -> handleError(throwable2, isSaliently))
+                            .onErrorResumeNext(Observable.empty())
+                            .subscribe((updateResModel) -> versionInfo(updateResModel, isSaliently)));
+                    break;
+                case CHECKING:
+                    break;
+                case DOWNLOADING:
+                    updateProgressDialog.show();
+                    break;
+                case ASKING:
+                    break;
+            }
         }
     }
 
@@ -177,9 +178,13 @@ public class UpdateManager {
             case NORMAL:
                 break;
             case CHECKING:
-                break;
+                return;
             case DOWNLOADING:
                 updateProgressDialog.show();
+                return;
+            case ASKING:
+                break;
+            default:
                 return;
         }
         initProgressDialog();
@@ -193,7 +198,7 @@ public class UpdateManager {
                 })
                 .doOnError(throwable -> {
                     updateProgressDialog.dismiss();
-                    String tips = RES_404.equals(throwable.getMessage()) ? "file is not exist " : "network error";
+                    String tips = RES_404.equals(throwable.getMessage()) ? activity.getString(R.string.toast_file_not_exist) : activity.getString(R.string.toast_download_connect_error);
                     ToastHelper.get(activity).showShort(tips);
                     Timber.e(throwable, "---->>");
                     status = Status.NORMAL;
@@ -209,10 +214,10 @@ public class UpdateManager {
     }
 
     private void versionInfo(ResUpdateModel resCheckVersion, boolean isSaliently) {
-        status = Status.NORMAL;
+        status = Status.ASKING;
         updateStatus();
         if (resCheckVersion.getVersionCode() > versionCode) {
-            new AlertDialog.Builder(activity)
+            askDialog = new AlertDialog.Builder(activity)
                     .setTitle(R.string.dialog_update_title)
                     .setMessage(activity.getString(R.string.dialog_update_msg, resCheckVersion.getVersionName()))
                     .setPositiveButton(R.string.dialog_update_btnupdate, (dialog, which) -> {
@@ -220,7 +225,10 @@ public class UpdateManager {
                     })
                     .setNegativeButton(R.string.dialog_update_btnnext, (dialog, which) -> {
                         activity.finish();
-                    }).show();
+                        status = Status.NORMAL;
+                    })
+                    .setOnCancelListener(dialog -> status = Status.NORMAL)
+                    .show();
         } else if (!isSaliently) {
             ToastHelper.get(activity).showShort(R.string.toast_last_version);
         }

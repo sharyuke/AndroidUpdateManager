@@ -7,4 +7,6 @@
     <string name="dialog_downloading_msg">正在下载更新。。。</string>
     <string name="toast_last_version">您的app已经是最新版本</string>
     <string name="toast_connect_error">检查更新连接服务器失败</string>
+    <string name="toast_file_not_exist">文件不存在</string>
+    <string name="toast_download_connect_error">网络下载错误</string>
 </resources>
