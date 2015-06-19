@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AppTool</string>
+    <string name="dialog_downloading_msg">downloading</string>
+    <string name="dialog_update_btnnext">exit</string>
+    <string name="dialog_update_btnupdate">update</string>
+    <string name="dialog_update_msg">a newer version：%s，update now?</string>
+    <string name="dialog_update_title">update</string>
+    <string name="toast_check_network_error">check for update network error</string>
+    <string name="toast_download_network_error">download file network error</string>
+    <string name="toast_file_not_exist">file is not exist</string>
+    <string name="toast_last_version">your app is the last version</string>
+</resources>

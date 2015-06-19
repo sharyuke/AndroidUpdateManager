@@ -9,7 +9,7 @@ android {
         applicationId "com.sharyuke.util"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 1
+        versionCode 1009
         versionName "1.0"
     }
     buildTypes {

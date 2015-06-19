@@ -169,7 +169,7 @@ public class UpdateManager {
             RetrofitError cause = (RetrofitError) throwable;
             switch (cause.getKind()) {
                 case NETWORK:
-                    ToastHelper.get(activity).showShort("you have the last version");
+                    ToastHelper.get(activity).showShort(activity.getResources().getString(R.string.toast_check_network_error));
                     break;
                 case CONVERSION:
                     break;
@@ -203,7 +203,7 @@ public class UpdateManager {
                 })
                 .doOnError(throwable -> {
                     updateProgressDialog.dismiss();
-                    String tips = RES_404.equals(throwable.getMessage()) ? "file is not exist " : "network error";
+                    String tips = RES_404.equals(throwable.getMessage()) ? activity.getResources().getString(R.string.toast_file_not_exist) : activity.getResources().getString(R.string.toast_download_network_error);
                     ToastHelper.get(activity).showShort(tips);
                     Timber.e(throwable, "---->>");
                     status = Status.NORMAL;
@@ -235,7 +235,7 @@ public class UpdateManager {
                     .setOnCancelListener(dialog -> status = Status.NORMAL)
                     .show();
         } else if (!isSaliently) {
-            ToastHelper.get(activity).showShort("could not connect the server");
+            ToastHelper.get(activity).showShort(R.string.toast_last_version);
         }
     }
 
