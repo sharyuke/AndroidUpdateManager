@@ -130,10 +130,19 @@ public class UpdateManager {
     }
 
     public void checkUpdate(Activity activity) {
-        checkUpdate(activity, false);
+        checkUpdate(activity, downloadUrl);
+    }
+
+    public void checkUpdate(Activity activity, String downloadUrl) {
+        checkUpdate(activity, false, downloadUrl);
     }
 
     public void checkUpdate(Activity activity, boolean isSaliently) {
+        checkUpdate(activity, isSaliently, downloadUrl);
+    }
+
+    public void checkUpdate(Activity activity, boolean isSaliently, String downloadUrl) {
+        this.downloadUrl = downloadUrl;
         this.activity = activity;
         switch (status) {
             case NORMAL:
@@ -210,18 +219,21 @@ public class UpdateManager {
     }
 
     private void versionInfo(ResUpdateModel resCheckVersion, boolean isSaliently) {
-        status = Status.NORMAL;
         updateStatus();
         if (resCheckVersion.getVersionCode() > versionCode) {
             new AlertDialog.Builder(activity)
                     .setTitle(R.string.dialog_update_title)
                     .setMessage(activity.getString(R.string.dialog_update_msg, resCheckVersion.getVersionName()))
                     .setPositiveButton(R.string.dialog_update_btnupdate, (dialog, which) -> {
+                        status = Status.NORMAL;
                         download(activity, downloadUrl);
                     })
                     .setNegativeButton(R.string.dialog_update_btnnext, (dialog, which) -> {
                         activity.finish();
-                    }).show();
+                        status = Status.NORMAL;
+                    })
+                    .setOnCancelListener(dialog -> status = Status.NORMAL)
+                    .show();
         } else if (!isSaliently) {
             ToastHelper.get(activity).showShort("could not connect the server");
         }
