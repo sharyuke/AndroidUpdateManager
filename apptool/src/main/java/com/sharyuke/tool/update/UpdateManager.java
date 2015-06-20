@@ -6,6 +6,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 
 import com.sharyuke.tool.R;
@@ -35,6 +37,8 @@ public class UpdateManager {
 
     public static final String APP = "app";
 
+    private static final int RESET = 0x01;
+
     private static UpdateManager mUpdateManager;
 
     protected CompositeSubscription subscription = new CompositeSubscription();
@@ -61,6 +65,8 @@ public class UpdateManager {
 
     private String downloadAppName;
 
+    private Handler handler;
+
     public static UpdateManager getInstance() {
         synchronized (UpdateManager.class) {
             if (mUpdateManager == null) {
@@ -72,6 +78,17 @@ public class UpdateManager {
 
     private UpdateManager() {
         client = new OkHttpClient();
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                switch (msg.what) {
+                    case RESET:
+                        reset();
+                        break;
+                }
+            }
+        };
     }
 
     private Status status = Status.NORMAL;
@@ -367,7 +384,7 @@ public class UpdateManager {
             File apkFile = new File(downloadAppName);
             if (apkFile.exists()) {
                 Timber.d("apk file is exist and install it directly");
-                update();
+                handler.sendEmptyMessage(RESET);
                 return;
             }
             FileOutputStream fos = null;
