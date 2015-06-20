@@ -10,6 +10,7 @@ import butterknife.OnClick;
 import retrofit.RestAdapter;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
+import retrofit.http.GET;
 import retrofit.http.POST;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -19,7 +20,7 @@ import timber.log.Timber;
 public class MainActivity extends Activity {
 
     public static final String UPDATE_DOWN_LOAD_URL = "http://test.yuke.me:9000/public/file/Passionlife.apk";
-    public final static String SERVER_URL = "http://test.yuke.me:9000";
+    public final static String SERVER_URL = "http://api.yuke.me:3000";
     UpdateManager updateManager;
 
     @Override
@@ -29,11 +30,8 @@ public class MainActivity extends Activity {
         Timber.plant(new Timber.DebugTree());
         ButterKnife.inject(this);
         UpdateInterface api = getAdapter().create(UpdateInterface.class);
-        BaseReqModel baseReqModel = new BaseReqModel();
-        baseReqModel.module = BaseReqModel.MODULE_INFORMATION;
-        baseReqModel.method = BaseReqModel.METHOD_CHECK_VERSION;
         updateManager = UpdateManager.getInstance()
-                .initUpdateManager(api.checkVersion(baseReqModel)
+                .initUpdateManager(api.checkVersion()
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread()),
                         UPDATE_DOWN_LOAD_URL,
@@ -55,9 +53,8 @@ public class MainActivity extends Activity {
 
     interface UpdateInterface {
 
-        @POST("/app/terminalapi/call")
-        @FormUrlEncoded
-        Observable<ResUpdateCheckVersion> checkVersion(@Field("requestValue") BaseReqModel reqModel);
+        @GET("/update")
+        Observable<ResUpdateCheckVersion> checkVersion();
     }
 
 }

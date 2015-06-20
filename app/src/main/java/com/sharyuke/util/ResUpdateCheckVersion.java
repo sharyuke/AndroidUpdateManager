@@ -7,17 +7,17 @@ import com.sharyuke.tool.update.ResUpdateModel;
  * Created by sharyuke on 15-6-8.
  */
 public class ResUpdateCheckVersion implements ResUpdateModel {
-    public String version_name;
+    public String versionName;
     public String method;
-    public int version_code;
+    public int versionCode;
 
     @Override
     public int getVersionCode() {
-        return version_code;
+        return versionCode;
     }
 
     @Override
     public String getVersionName() {
-        return version_name;
+        return versionName;
     }
 }

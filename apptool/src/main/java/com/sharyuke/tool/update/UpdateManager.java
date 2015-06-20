@@ -62,7 +62,6 @@ public class UpdateManager {
 
     private UpdateManager() {
         client = new OkHttpClient();
-        bus = new Bus();
     }
 
     private Status status = Status.NORMAL;
@@ -86,6 +85,16 @@ public class UpdateManager {
         return this;
     }
 
+    public UpdateManager initUpdateManager(Observable<? extends ResUpdateModel> updateApi, String downloadUrl, int versionCode, Bus bus) {
+        setUpdateApi(updateApi).setDownloadUrl(downloadUrl).setVersionCode(versionCode).setBus(bus);
+        return this;
+    }
+
+    public UpdateManager setBus(Bus bus) {
+        this.bus = bus;
+        return this;
+    }
+
     public UpdateManager setUpdateApi(Observable<? extends ResUpdateModel> updateApi) {
         this.updateApi = updateApi;
         return this;
@@ -102,27 +111,18 @@ public class UpdateManager {
     }
 
     private void initProgressDialog() {
-        updateProgressDialog = new ProgressDialog(
-                activity);
-        updateProgressDialog
-                .setMessage(activity.getText(R.string.dialog_downloading_msg));
+        updateProgressDialog = new ProgressDialog(activity);
+        updateProgressDialog.setMessage(activity.getText(R.string.dialog_downloading_msg));
         updateProgressDialog.setIndeterminate(false);
-        updateProgressDialog
-                .setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        updateProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         updateProgressDialog.setMax(100);
         updateProgressDialog.setProgress(0);
         updateProgressDialog.show();
-        updateProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "cancel", (dialog, which) -> {
-            cancelDownLoad();
-        });
-        updateProgressDialog.setButton(DialogInterface.BUTTON_POSITIVE, "hint", (dialog, which) -> {
-            updateProgressDialog.dismiss();
-        });
-        status = Status.DOWNLOADING;
-        updateStatus();
+        updateStatus(Status.DOWNLOADING);
     }
 
-    private void updateStatus() {
+    private void updateStatus(Status status) {
+        this.status = status;
         if (updateStatus != null) {
             updateStatus.onStatusChanged(status);
         }
@@ -146,11 +146,9 @@ public class UpdateManager {
         this.activity = activity;
         switch (status) {
             case NORMAL:
-                status = Status.CHECKING;
-                updateStatus();
+                updateStatus(Status.CHECKING);
                 subscription.add(updateApi
-                        .doOnError(throwable -> status = Status.NORMAL)
-                        .doOnError(throwable1 -> updateStatus())
+                        .doOnError(throwable1 -> updateStatus(Status.NORMAL))
                         .doOnError((throwable2) -> handleError(throwable2, isSaliently))
                         .onErrorResumeNext(Observable.empty())
                         .subscribe((updateResModel) -> versionInfo(updateResModel, isSaliently)));
@@ -158,7 +156,7 @@ public class UpdateManager {
             case CHECKING:
                 break;
             case DOWNLOADING:
-                updateProgressDialog.show();
+                initProgressDialog();
                 break;
         }
     }
@@ -181,6 +179,12 @@ public class UpdateManager {
         }
     }
 
+    private void sendProgress(DownLoadProgress downLoadProgress) {
+        if (bus != null) {
+            bus.post(downLoadProgress);
+        }
+    }
+
     private void download(Activity activity, String url) {
         this.activity = activity;
         switch (status) {
@@ -189,7 +193,7 @@ public class UpdateManager {
             case CHECKING:
                 break;
             case DOWNLOADING:
-                updateProgressDialog.show();
+                initProgressDialog();
                 return;
         }
         initProgressDialog();
@@ -199,15 +203,14 @@ public class UpdateManager {
                 .doOnNext(downLoadProgress -> {
                     updateProgressDialog.setMax((int) downLoadProgress.getTotalLength());
                     updateProgressDialog.setProgress((int) downLoadProgress.getProgress());
-                    bus.post(downLoadProgress);
+                    sendProgress(downLoadProgress);
                 })
                 .doOnError(throwable -> {
                     updateProgressDialog.dismiss();
                     String tips = RES_404.equals(throwable.getMessage()) ? activity.getResources().getString(R.string.toast_file_not_exist) : activity.getResources().getString(R.string.toast_download_network_error);
                     ToastHelper.get(activity).showShort(tips);
                     Timber.e(throwable, "---->>");
-                    status = Status.NORMAL;
-                    updateStatus();
+                    updateStatus(Status.NORMAL);
                 })
                 .onErrorResumeNext(Observable.empty())
                 .subscribe(downLoadProgress -> {
@@ -219,22 +222,22 @@ public class UpdateManager {
     }
 
     private void versionInfo(ResUpdateModel resCheckVersion, boolean isSaliently) {
-        updateStatus();
         if (resCheckVersion.getVersionCode() > versionCode) {
             new AlertDialog.Builder(activity)
                     .setTitle(R.string.dialog_update_title)
                     .setMessage(activity.getString(R.string.dialog_update_msg, resCheckVersion.getVersionName()))
                     .setPositiveButton(R.string.dialog_update_btnupdate, (dialog, which) -> {
-                        status = Status.NORMAL;
+                        updateStatus(Status.NORMAL);
                         download(activity, downloadUrl);
                     })
                     .setNegativeButton(R.string.dialog_update_btnnext, (dialog, which) -> {
                         activity.finish();
-                        status = Status.NORMAL;
+                        updateStatus(Status.NORMAL);
                     })
-                    .setOnCancelListener(dialog -> status = Status.NORMAL)
+                    .setOnCancelListener(dialog -> updateStatus(Status.NORMAL))
                     .show();
         } else if (!isSaliently) {
+            updateStatus(Status.NORMAL);
             ToastHelper.get(activity).showShort(R.string.toast_last_version);
         }
     }
@@ -249,9 +252,8 @@ public class UpdateManager {
     }
 
     private void reset() {
-        status = Status.NORMAL;
-        updateStatus();
-        bus.post(new DownLoadProgress());
+        updateStatus(Status.NORMAL);
+        sendProgress(new DownLoadProgress());
     }
 
     private void update() {
