@@ -83,4 +83,4 @@ UpdateManager 已经上传到Jcenter 在android studio 的 build.gradle 里面�
 
 	  compile 'com.sharyuke:apptool:1.1.2@aar'
 
-[或者直接下载aar](https://bintray.com/artifact/download/sharyuke/maven/com/sharyuke/apptool/1.1.2/apptool-1.1.2.aar)
+[或者直接下载aar](https://bintray.com/artifact/download/sharyuke/maven/com/sharyuke/apptool/1.1.4/apptool-1.1.4.aar)
