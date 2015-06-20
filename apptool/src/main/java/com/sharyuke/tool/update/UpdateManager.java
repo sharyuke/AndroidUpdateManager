@@ -187,6 +187,7 @@ public class UpdateManager {
                         .subscribe((updateResModel) -> versionInfo(updateResModel, isSaliently)));
                 break;
             case CHECKING:
+                updateStatus(Status.CHECKING);
                 break;
             case DOWNLOADING:
                 initProgressDialog();
