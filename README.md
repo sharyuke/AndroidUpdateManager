@@ -34,7 +34,7 @@ UpdateManager有多种实例化方法，不过有3个参数是必须的，
 
 	  updateManager.checkUpdate(getActivity());
 
-如果不想要静默检查更新（即，不弹出，“当前App是最新版本”和“检查更新连接服务器失败”），用于app启动时候的检查更新，添加一个参数即可
+如果想要静默检查更新（即，不弹出，“当前App是最新版本”和“检查更新连接服务器失败”），用于app启动时候的检查更新，添加一个参数即可
 
 	  updateManager.checkUpdate(getActivity()，false);
 
