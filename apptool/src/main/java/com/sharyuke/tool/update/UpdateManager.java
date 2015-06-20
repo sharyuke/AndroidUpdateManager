@@ -3,9 +3,7 @@ package com.sharyuke.tool.update;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
@@ -16,6 +14,7 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,6 +32,8 @@ public class UpdateManager {
     private static final String UPDATE_STUFF_SAVE_NAME = ".apk";
 
     private static final String RES_404 = "404";
+
+    public static final String APP = "app";
 
     private static UpdateManager mUpdateManager;
 
@@ -90,12 +91,12 @@ public class UpdateManager {
     }
 
     public UpdateManager initUpdateManager(Observable<? extends ResUpdateModel> updateApi, String downloadUrl, int versionCode) {
-        initUpdateManager(updateApi, downloadUrl, versionCode, null, "");
+        initUpdateManager(updateApi, downloadUrl, versionCode, null, APP);
         return this;
     }
 
     public UpdateManager initUpdateManager(Observable<? extends ResUpdateModel> updateApi, String downloadUrl, int versionCode, Bus bus) {
-        initUpdateManager(updateApi, downloadUrl, versionCode, bus, "");
+        initUpdateManager(updateApi, downloadUrl, versionCode, bus, APP);
         return this;
     }
 
@@ -217,6 +218,11 @@ public class UpdateManager {
         }
     }
 
+    @Subscribe
+    public void updateDownloadProgress(DownLoadProgress progress) {
+
+    }
+
     private void download(Activity activity, String url, String versionName) {
         this.activity = activity;
         switch (status) {
@@ -254,7 +260,7 @@ public class UpdateManager {
     }
 
     private void initFileName(String versionName) {
-        appName = TextUtils.isEmpty(appName) ? "app" : appName;
+        appName = TextUtils.isEmpty(appName) ? APP : appName;
         versionName = TextUtils.isEmpty(versionName) ? "debug" : versionName;
         String dir;
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
@@ -263,8 +269,8 @@ public class UpdateManager {
             dir = Environment.getDataDirectory() + "/" + appName + "/apks/";
         }
         files = new File(dir);
-        if (!files.exists()) {
-            files.mkdirs();
+        if (!files.exists() && files.mkdirs()) {
+            Timber.d(files.getName() + " has been created");
         }
         downloadAppName = dir + appName + "-" + versionName + UPDATE_STUFF_SAVE_NAME;
     }
