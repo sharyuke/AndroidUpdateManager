@@ -13,8 +13,11 @@ public class FileHelper {
         if (file == null) return;
         if (file.exists()) {
             String name = file.getName();
-            if (file.isFile() && file.delete()) {
+            if (file.isFile()) {
+                File to = new File(file.getAbsolutePath() + System.currentTimeMillis());
+                if (file.renameTo(to) && file.delete()) {
                 log(name);
+                }
             } else if (file.isDirectory()) {
                 File files[] = file.listFiles();
                 for (File file1 : files) {
