@@ -43,6 +43,10 @@ public class MainActivity extends Activity {
         updateManager.checkUpdate(this);
     }
 
+    @OnClick(R.id.debug_delete)
+    public void delete() {
+        updateManager.deleteCacheFiles();
+    }
     RestAdapter getAdapter() {
         return new RestAdapter.Builder()
                 .setEndpoint(SERVER_URL)

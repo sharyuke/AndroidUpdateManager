@@ -5,10 +5,13 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Environment;
+import android.text.TextUtils;
 
 import com.sharyuke.tool.R;
+import com.sharyuke.tool.util.FileHelper;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -27,7 +30,7 @@ import rx.subscriptions.CompositeSubscription;
 import timber.log.Timber;
 
 public class UpdateManager {
-    private static final String UPDATE_SAVE_NAME = "Passionlife.apk";
+    private static final String UPDATE_STUFF_SAVE_NAME = ".apk";
 
     private static final String RES_404 = "404";
 
@@ -50,6 +53,12 @@ public class UpdateManager {
     private Bus bus;
 
     private UpdateStatus updateStatus;
+
+    private String appName;
+
+    private File files;
+
+    private String downloadAppName;
 
     public static UpdateManager getInstance() {
         synchronized (UpdateManager.class) {
@@ -81,12 +90,22 @@ public class UpdateManager {
     }
 
     public UpdateManager initUpdateManager(Observable<? extends ResUpdateModel> updateApi, String downloadUrl, int versionCode) {
-        setUpdateApi(updateApi).setDownloadUrl(downloadUrl).setVersionCode(versionCode);
+        initUpdateManager(updateApi, downloadUrl, versionCode, null, "");
         return this;
     }
 
     public UpdateManager initUpdateManager(Observable<? extends ResUpdateModel> updateApi, String downloadUrl, int versionCode, Bus bus) {
-        setUpdateApi(updateApi).setDownloadUrl(downloadUrl).setVersionCode(versionCode).setBus(bus);
+        initUpdateManager(updateApi, downloadUrl, versionCode, bus, "");
+        return this;
+    }
+
+    public UpdateManager initUpdateManager(Observable<? extends ResUpdateModel> updateApi, String downloadUrl, int versionCode, String appName) {
+        initUpdateManager(updateApi, downloadUrl, versionCode, null, appName);
+        return this;
+    }
+
+    public UpdateManager initUpdateManager(Observable<? extends ResUpdateModel> updateApi, String downloadUrl, int versionCode, Bus bus, String appName) {
+        setUpdateApi(updateApi).setDownloadUrl(downloadUrl).setVersionCode(versionCode).setAppName(appName);
         return this;
     }
 
@@ -108,6 +127,19 @@ public class UpdateManager {
     public UpdateManager setVersionCode(int versionCode) {
         this.versionCode = versionCode;
         return this;
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public UpdateManager setAppName(String appName) {
+        this.appName = appName;
+        return this;
+    }
+
+    public void deleteCacheFiles() {
+        FileHelper.deleteFile(files);
     }
 
     private void initProgressDialog() {
@@ -185,17 +217,18 @@ public class UpdateManager {
         }
     }
 
-    private void download(Activity activity, String url) {
+    private void download(Activity activity, String url, String versionName) {
         this.activity = activity;
         switch (status) {
             case NORMAL:
                 break;
             case CHECKING:
-                break;
+                return;
             case DOWNLOADING:
                 initProgressDialog();
                 return;
         }
+        initFileName(versionName);
         initProgressDialog();
         subscription.add(get(url)
                 .subscribeOn(Schedulers.io())
@@ -215,10 +248,25 @@ public class UpdateManager {
                 .onErrorResumeNext(Observable.empty())
                 .subscribe(downLoadProgress -> {
                     if (downLoadProgress.isComplete()) {
-                        updateProgressDialog.dismiss();
                         update();
                     }
                 }));
+    }
+
+    private void initFileName(String versionName) {
+        appName = TextUtils.isEmpty(appName) ? "app" : appName;
+        versionName = TextUtils.isEmpty(versionName) ? "debug" : versionName;
+        String dir;
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            dir = Environment.getExternalStorageDirectory() + "/" + appName + "/apks/";
+        } else {
+            dir = Environment.getDataDirectory() + "/" + appName + "/apks/";
+        }
+        files = new File(dir);
+        if (!files.exists()) {
+            files.mkdirs();
+        }
+        downloadAppName = dir + appName + "-" + versionName + UPDATE_STUFF_SAVE_NAME;
     }
 
     private void versionInfo(ResUpdateModel resCheckVersion, boolean isSaliently) {
@@ -228,7 +276,7 @@ public class UpdateManager {
                     .setMessage(activity.getString(R.string.dialog_update_msg, resCheckVersion.getVersionName()))
                     .setPositiveButton(R.string.dialog_update_btnupdate, (dialog, which) -> {
                         updateStatus(Status.NORMAL);
-                        download(activity, downloadUrl);
+                        download(activity, downloadUrl, resCheckVersion.getVersionName());
                     })
                     .setNegativeButton(R.string.dialog_update_btnnext, (dialog, which) -> {
                         activity.finish();
@@ -243,7 +291,11 @@ public class UpdateManager {
     }
 
     public void downLoadDebug(Activity activity, String url) {
-        download(activity, url);
+        downLoadDebug(activity, url, "debug");
+    }
+
+    public void downLoadDebug(Activity activity, String url, String versionName) {
+        download(activity, url, versionName);
     }
 
     public void cancelDownLoad() {
@@ -257,10 +309,11 @@ public class UpdateManager {
     }
 
     private void update() {
+        updateProgressDialog.dismiss();
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.setDataAndType(
-                Uri.fromFile(new File(Environment.getExternalStorageDirectory() + "/" + UPDATE_SAVE_NAME)),
+                Uri.fromFile(new File(downloadAppName)),
                 "application/vnd.android.package-archive");
         activity.startActivity(intent);
         reset();
@@ -304,9 +357,11 @@ public class UpdateManager {
         return Observable.create(subscriber -> {
             Request request = new Request.Builder().url(url).build();
             Response response = null;
-            File apkFile = new File(Environment.getExternalStorageDirectory() + "/" + UPDATE_SAVE_NAME);
-            if (apkFile.exists() && apkFile.delete()) {
-                Timber.d("delete exist apk file...");
+            File apkFile = new File(downloadAppName);
+            if (apkFile.exists()) {
+                Timber.d("apk file is exist and install it directly");
+                update();
+                return;
             }
             FileOutputStream fos = null;
             InputStream inputStream = null;
