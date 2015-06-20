@@ -84,7 +84,7 @@ public class UpdateManager {
                 super.handleMessage(msg);
                 switch (msg.what) {
                     case RESET:
-                        reset();
+                        update();
                         break;
                 }
             }
