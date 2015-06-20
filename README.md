@@ -81,6 +81,6 @@ updateManager带有下载文件缓存功能，第一次下载成功了，第二�
 
 UpdateManager 已经上传到Jcenter 在android studio 的 build.gradle 里面添加Jcenter的依赖
 
-	  compile 'com.sharyuke:apptool:1.1.2@aar'
+	  compile 'com.sharyuke:apptool:1.1.4@aar'
 
 [或者直接下载aar](https://bintray.com/artifact/download/sharyuke/maven/com/sharyuke/apptool/1.1.4/apptool-1.1.4.aar)
