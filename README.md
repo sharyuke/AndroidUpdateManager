@@ -3,7 +3,7 @@ Android UpdateManager Introduce
 
 6/20/2015 10:19:08 PM 
 
-！[view](view.gif)
+![view](view.gif)
 
 ####实例化Update
 
