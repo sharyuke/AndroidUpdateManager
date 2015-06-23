@@ -57,7 +57,8 @@ public class UpdateManager {
 
     private Bus bus;
 
-    private UpdateStatus updateStatus;
+    private OnUpdateStatus onUpdateStatus;
+    private OnUpdateProgress onUpdateProgress;
 
     private String appName;
 
@@ -173,10 +174,16 @@ public class UpdateManager {
 
     private void updateStatus(Status status) {
         this.status = status;
-        if (updateStatus != null) {
-            updateStatus.onStatusChanged(status);
+        if (onUpdateStatus != null) {
+            onUpdateStatus.onStatusChanged(status);
         }
 
+    }
+
+    private void updateProgress(DownLoadProgress downLoadProgress) {
+        if (onUpdateProgress != null) {
+            onUpdateProgress.onProgressChanged(downLoadProgress);
+        }
     }
 
     public void checkUpdate(Activity activity) {
@@ -261,6 +268,7 @@ public class UpdateManager {
                     updateProgressDialog.setMax((int) downLoadProgress.getTotalLength());
                     updateProgressDialog.setProgress((int) downLoadProgress.getProgress());
                     sendProgress(downLoadProgress);
+                    updateDownloadProgress(downLoadProgress);
                 })
                 .doOnError(throwable -> {
                     updateProgressDialog.dismiss();
@@ -329,7 +337,9 @@ public class UpdateManager {
 
     private void reset() {
         updateStatus(Status.NORMAL);
-        sendProgress(new DownLoadProgress());
+        DownLoadProgress downLoadProgress = new DownLoadProgress();
+        sendProgress(downLoadProgress);
+        updateDownloadProgress(downLoadProgress);
     }
 
     private void update() {
@@ -435,13 +445,17 @@ public class UpdateManager {
         });
     }
 
-    public UpdateManager setUpdateStatus(UpdateStatus updateStatus) {
-        this.updateStatus = updateStatus;
+    public UpdateManager setOnUpdateStatus(OnUpdateStatus onUpdateStatus) {
+        this.onUpdateStatus = onUpdateStatus;
         return this;
     }
 
-    public interface UpdateStatus {
+    public interface OnUpdateStatus {
         void onStatusChanged(Status status);
+    }
+
+    public interface OnUpdateProgress {
+        void onProgressChanged(DownLoadProgress downLoadProgress);
     }
 
 }
