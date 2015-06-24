@@ -62,8 +62,8 @@ public class UpdateManager {
 
     private Bus bus;
 
-    private List<OnUpdateStatus> onUpdateStatus = new ArrayList<>();
-    private List<OnUpdateProgress> onUpdateProgress = new ArrayList<>();
+    private List<OnUpdateStatus> onUpdateStatusList = new ArrayList<>();
+    private List<OnUpdateProgress> onUpdateProgressList = new ArrayList<>();
 
     private String appName;
 
@@ -200,7 +200,7 @@ public class UpdateManager {
 
     private void updateStatus(Status status) {
         this.status = status;
-        for (OnUpdateStatus updateStatus : onUpdateStatus) {
+        for (OnUpdateStatus updateStatus : onUpdateStatusList) {
             updateStatus(updateStatus, status);
         }
     }
@@ -269,7 +269,7 @@ public class UpdateManager {
     }
 
     private void updateDownloadProgress(DownLoadProgress progress) {
-        for (OnUpdateProgress onUpdate : onUpdateProgress) {
+        for (OnUpdateProgress onUpdate : onUpdateProgressList) {
             updateDownloadProgress(onUpdate, progress);
         }
     }
@@ -492,21 +492,40 @@ public class UpdateManager {
         });
     }
 
-    public UpdateManager setOnUpdateStatus(OnUpdateStatus onUpdateStatus) {
-        this.onUpdateStatus.add(onUpdateStatus);
+    /**
+     * listeners should not more than 5 in case memory leak
+     *
+     * @param onUpdateStatus listener
+     * @return UpdateManager
+     */
+    public UpdateManager setOnUpdateStatusList(OnUpdateStatus onUpdateStatus) {
+        this.onUpdateStatusList.add(onUpdateStatus);
+        if (onUpdateStatusList.size() > 5) {
+            removeOnUpdateStatus(onUpdateStatusList.get(0));
+        }
         return this;
     }
 
     public void removeOnUpdateStatus(OnUpdateStatus updateStatus) {
-        onUpdateStatus.remove(updateStatus);
+        onUpdateStatusList.remove(updateStatus);
     }
 
-    public void setOnUpdateProgress(OnUpdateProgress onUpdateProgress) {
-        this.onUpdateProgress.add(onUpdateProgress);
+    /**
+     * listeners should not more than 5 in case memory leak
+     *
+     * @param onUpdateProgress listener
+     * @return UpdateManager
+     */
+    public UpdateManager setOnUpdateProgressList(OnUpdateProgress onUpdateProgress) {
+        this.onUpdateProgressList.add(onUpdateProgress);
+        if (onUpdateProgressList.size() > 5) {
+            removeUpdateDownloadProgress(onUpdateProgressList.get(0));
+        }
+        return this;
     }
 
-    public void removeUpdateDownloadProgress(DownLoadProgress progress) {
-        onUpdateProgress.remove(progress);
+    public void removeUpdateDownloadProgress(OnUpdateProgress progress) {
+        onUpdateProgressList.remove(progress);
     }
 
     public interface OnUpdateStatus {
