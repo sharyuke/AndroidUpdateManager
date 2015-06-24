@@ -1,4 +1,4 @@
-package com.sharyuke.tool.update;
+package com.sharyuke.tool.util;
 
 import android.content.Context;
 import android.os.Handler;
