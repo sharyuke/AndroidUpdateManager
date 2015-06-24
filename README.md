@@ -6,7 +6,7 @@ Android UpdateManager Introduce
 ![view](view.gif)
 
 ---
-######1.1.7 release note
+######1.1.8 release note
 增加回调的方式来实现下载进度实时更新
 
              updateManager.setOnUpdateStatus(new UpdateManager.OnUpdateStatus() {
