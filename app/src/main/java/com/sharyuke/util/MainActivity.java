@@ -8,10 +8,7 @@ import com.sharyuke.tool.update.UpdateManager;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import retrofit.RestAdapter;
-import retrofit.http.Field;
-import retrofit.http.FormUrlEncoded;
 import retrofit.http.GET;
-import retrofit.http.POST;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -36,6 +33,12 @@ public class MainActivity extends Activity {
                                 .observeOn(AndroidSchedulers.mainThread()),
                         UPDATE_DOWN_LOAD_URL,
                         BuildConfig.VERSION_CODE);
+        updateManager.setOnUpdateStatus(new UpdateManager.OnUpdateStatus() {
+            @Override
+            public void onStatusChanged(UpdateManager.Status status) {
+
+            }
+        });
     }
 
     @OnClick(R.id.update)
@@ -47,6 +50,7 @@ public class MainActivity extends Activity {
     public void delete() {
         updateManager.deleteCacheFiles();
     }
+
     RestAdapter getAdapter() {
         return new RestAdapter.Builder()
                 .setEndpoint(SERVER_URL)

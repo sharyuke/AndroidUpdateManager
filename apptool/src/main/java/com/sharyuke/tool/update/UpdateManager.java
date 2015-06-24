@@ -450,6 +450,10 @@ public class UpdateManager {
         return this;
     }
 
+    public static void setmUpdateManager(UpdateManager mUpdateManager) {
+        UpdateManager.mUpdateManager = mUpdateManager;
+    }
+
     public interface OnUpdateStatus {
         void onStatusChanged(Status status);
     }
