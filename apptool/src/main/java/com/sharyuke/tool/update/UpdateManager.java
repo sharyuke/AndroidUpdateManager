@@ -319,6 +319,8 @@ public class UpdateManager {
         } else if (!isSaliently) {
             updateStatus(Status.NORMAL);
             ToastHelper.get(activity).showShort(R.string.toast_last_version);
+        } else {
+            updateStatus(Status.NORMAL);
         }
     }
 
