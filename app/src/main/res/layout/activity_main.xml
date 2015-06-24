@@ -12,6 +12,10 @@
         android:text="update" />
 
 
+    <TextView
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
     <Button
         android:id="@+id/debug_delete"
         android:layout_width="wrap_content"

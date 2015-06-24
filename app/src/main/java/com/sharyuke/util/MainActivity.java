@@ -2,10 +2,12 @@ package com.sharyuke.util;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import com.sharyuke.tool.update.UpdateManager;
 
 import butterknife.ButterKnife;
+import butterknife.InjectView;
 import butterknife.OnClick;
 import retrofit.RestAdapter;
 import retrofit.http.GET;
@@ -19,6 +21,9 @@ public class MainActivity extends Activity {
     public static final String UPDATE_DOWN_LOAD_URL = "http://test.yuke.me:9000/public/file/Passionlife.apk";
     public final static String SERVER_URL = "http://api.yuke.me:3000";
     UpdateManager updateManager;
+
+    @InjectView(R.id.progress)
+    TextView progressView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +42,10 @@ public class MainActivity extends Activity {
 
         });
         updateManager.setDialogTheme(R.style.Base_Theme_AppCompat_Dialog_Alert);
+        updateManager.setOnUpdateProgress(downLoadProgress ->
+                progressView.setText(String.format("%.2f",
+                        ((float) downLoadProgress.getProgress()) * 100
+                                / downLoadProgress.getTotalLength())));
     }
 
     @OnClick(R.id.update)

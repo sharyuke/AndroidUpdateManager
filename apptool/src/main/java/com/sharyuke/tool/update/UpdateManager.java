@@ -17,7 +17,6 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -131,8 +130,9 @@ public class UpdateManager {
         return this;
     }
 
-    public void setDialogTheme(int dialogTheme) {
+    public UpdateManager setDialogTheme(int dialogTheme) {
         this.dialogTheme = dialogTheme;
+        return this;
     }
 
     public UpdateManager setBus(Bus bus) {
@@ -254,9 +254,10 @@ public class UpdateManager {
         }
     }
 
-    @Subscribe
     public void updateDownloadProgress(DownLoadProgress progress) {
-
+        if (onUpdateProgress != null) {
+            onUpdateProgress.onProgressChanged(progress);
+        }
     }
 
     private void download(Activity activity, String url, String versionName) {
