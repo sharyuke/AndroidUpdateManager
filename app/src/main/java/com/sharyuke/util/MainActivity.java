@@ -41,7 +41,7 @@ public class MainActivity extends Activity {
         updateManager.setOnUpdateStatus(status -> {
 
         });
-        updateManager.setDialogTheme(R.style.Base_Theme_AppCompat_Dialog_Alert);
+        updateManager.setDialogTheme(R.style.dialogTheme);
         updateManager.setOnUpdateProgress(downLoadProgress ->
                 progressView.setText(String.format("%.2f",
                         ((float) downLoadProgress.getProgress()) * 100
