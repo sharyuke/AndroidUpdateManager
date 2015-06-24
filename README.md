@@ -8,9 +8,10 @@ Android UpdateManager Introduce
 ---
 ######1.1.7 release note
 增加回调的方式来实现下载进度实时更新
-     updateManager.setOnUpdateStatus(new UpdateManager.OnUpdateStatus() {
-                @Override
-                public void onStatusChanged(UpdateManager.Status status) {
+
+             updateManager.setOnUpdateStatus(new UpdateManager.OnUpdateStatus() {
+                    @Override
+                    public void onStatusChanged(UpdateManager.Status status) {
 
                 }
             });
