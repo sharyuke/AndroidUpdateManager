@@ -6,6 +6,9 @@ Android UpdateManager Introduce
 ![view](view.gif)
 
 ---
+######1.2.5 release note listeners should not more than 5 in case memory leak
+监听器不能超过5个，防止内存泄漏 , 修改监听器方法错误
+
 ######1.2.4 release note
 当处于下载状态时，不能删除文件
     
