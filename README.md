@@ -6,6 +6,11 @@ Android UpdateManager Introduce
 ![view](view.gif)
 
 ---
+######1.1.9 release note
+增加自定义dialog的style
+
+             updateManager.setDialogTheme(R.style.Base_Theme_AppCompat_Dialog_Alert);
+
 ######1.1.8 release note
 增加回调的方式来实现下载进度实时更新
 

@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
@@ -54,6 +55,8 @@ public class UpdateManager {
     private ProgressDialog updateProgressDialog;
 
     private OkHttpClient client;
+
+    private int dialogTheme;
 
     private Bus bus;
 
@@ -128,6 +131,10 @@ public class UpdateManager {
         return this;
     }
 
+    public void setDialogTheme(int dialogTheme) {
+        this.dialogTheme = dialogTheme;
+    }
+
     public UpdateManager setBus(Bus bus) {
         this.bus = bus;
         return this;
@@ -162,7 +169,11 @@ public class UpdateManager {
     }
 
     private void initProgressDialog() {
-        updateProgressDialog = new ProgressDialog(activity);
+        if (dialogTheme != 0) {
+            updateProgressDialog = new ProgressDialog(activity, dialogTheme);
+        } else {
+            updateProgressDialog = new ProgressDialog(activity);
+        }
         updateProgressDialog.setMessage(activity.getText(R.string.dialog_downloading_msg));
         updateProgressDialog.setIndeterminate(false);
         updateProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
@@ -303,8 +314,14 @@ public class UpdateManager {
 
     private void versionInfo(ResUpdateModel resCheckVersion, boolean isSaliently) {
         if (resCheckVersion.getVersionCode() > versionCode) {
-            new AlertDialog.Builder(activity)
-                    .setTitle(R.string.dialog_update_title)
+            AlertDialog.Builder builder;
+            if (dialogTheme != 0 && Build.VERSION.SDK_INT > 11) {
+                builder = new AlertDialog.Builder(activity, dialogTheme);
+            } else {
+                builder = new AlertDialog.Builder(activity);
+            }
+
+            builder.setTitle(R.string.dialog_update_title)
                     .setMessage(activity.getString(R.string.dialog_update_msg, resCheckVersion.getVersionName()))
                     .setPositiveButton(R.string.dialog_update_btnupdate, (dialog, which) -> {
                         updateStatus(Status.NORMAL);

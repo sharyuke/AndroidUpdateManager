@@ -33,12 +33,10 @@ public class MainActivity extends Activity {
                                 .observeOn(AndroidSchedulers.mainThread()),
                         UPDATE_DOWN_LOAD_URL,
                         BuildConfig.VERSION_CODE);
-        updateManager.setOnUpdateStatus(new UpdateManager.OnUpdateStatus() {
-            @Override
-            public void onStatusChanged(UpdateManager.Status status) {
+        updateManager.setOnUpdateStatus(status -> {
 
-            }
         });
+        updateManager.setDialogTheme(R.style.Base_Theme_AppCompat_Dialog_Alert);
     }
 
     @OnClick(R.id.update)
