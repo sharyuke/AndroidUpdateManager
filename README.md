@@ -6,6 +6,9 @@ Android UpdateManager Introduce
 ![view](view.gif)
 
 ---
+######1.2.0 release note
+fix progress bug
+
 ######1.1.9 release note
 增加自定义dialog的style
 
