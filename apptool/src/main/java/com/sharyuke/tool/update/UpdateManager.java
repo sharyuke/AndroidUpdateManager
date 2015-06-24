@@ -351,6 +351,10 @@ public class UpdateManager {
     }
 
     public void cancelDownLoad() {
+        File apkFile = new File(downloadAppName);
+        if (apkFile.exists() && apkFile.delete()) {
+            Timber.d("cancel download and delete apk files");
+        }
         reset();
         subscription.clear();
     }
