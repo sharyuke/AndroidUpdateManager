@@ -6,6 +6,9 @@ Android UpdateManager Introduce
 ![view](view.gif)
 
 ---
+######1.2.4 release note
+当处于下载状态时，不能删除文件
+    
 ######1.2.1 release note
 修改下载状态变化和下载进度变化的监听器的设置集合。增加remove监听器方法
 
