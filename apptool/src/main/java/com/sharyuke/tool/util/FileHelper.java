@@ -16,9 +16,11 @@ public class FileHelper {
             String name = file.getName();
             if (file.isFile()) {
                 File to = new File(file.getAbsolutePath() + System.currentTimeMillis());
-                if (file.renameTo(to) && file.delete()) {
-                    log(name);
-                    deleted = true;
+                if (file.renameTo(to)) {
+                    if (file.delete()) {
+                        log(name);
+                        deleted = true;
+                    }
                 }
             } else if (file.isDirectory()) {
                 File files[] = file.listFiles();
@@ -27,10 +29,6 @@ public class FileHelper {
                         deleted = true;
                     }
                 }
-            }
-            if (file.delete()) {
-                log(name);
-                deleted = true;
             }
         }
         return deleted;
