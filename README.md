@@ -6,6 +6,12 @@ Android UpdateManager Introduce
 ![view](view.gif)
 
 ---
+######1.2.1 release note
+修改下载状态变化和下载进度变化的监听器的设置集合。增加remove监听器方法
+
+    updateManager.removeOnUpdateStatus(this);
+    updateManager.removeUpdateDownloadProgress(this);
+
 ######1.2.0 release note
 fix progress bug
 
@@ -100,6 +106,6 @@ updateManager带有下载文件缓存功能，第一次下载成功了，第二�
 
 UpdateManager 已经上传到Jcenter 在android studio 的 build.gradle 里面添加Jcenter的依赖
 
-	  compile 'com.sharyuke:apptool:1.1.4@aar'
+	  compile 'com.sharyuke:apptool:1.2.1@aar'
 
-[或者直接下载aar](https://bintray.com/artifact/download/sharyuke/maven/com/sharyuke/apptool/1.1.4/apptool-1.1.4.aar)
+[或者直接下载aar](https://bintray.com/artifact/download/sharyuke/maven/com/sharyuke/apptool/1.2.1/apptool-1.2.1.aar)

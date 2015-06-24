@@ -9,25 +9,31 @@ import timber.log.Timber;
  * Created by sy_home on 2015/6/20.
  */
 public class FileHelper {
-    public static void deleteFile(File file) {
-        if (file == null) return;
+    public static boolean deleteFile(File file) {
+        if (file == null) return false;
+        boolean deleted = false;
         if (file.exists()) {
             String name = file.getName();
             if (file.isFile()) {
                 File to = new File(file.getAbsolutePath() + System.currentTimeMillis());
                 if (file.renameTo(to) && file.delete()) {
-                log(name);
+                    log(name);
+                    deleted = true;
                 }
             } else if (file.isDirectory()) {
                 File files[] = file.listFiles();
                 for (File file1 : files) {
-                    deleteFile(file1);
+                    if (deleteFile(file1)) {
+                        deleted = true;
+                    }
                 }
             }
             if (file.delete()) {
                 log(name);
+                deleted = true;
             }
         }
+        return deleted;
     }
 
     private static void log(String name) {

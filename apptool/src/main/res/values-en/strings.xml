@@ -10,4 +10,6 @@
     <string name="toast_download_network_error">download file network error</string>
     <string name="toast_file_not_exist">file is not exist</string>
     <string name="toast_last_version">your app is the last version</string>
+    <string name="toast_delete_something">delete files successfully</string>
+    <string name="toast_delete_nothing">no file to delete</string>
 </resources>

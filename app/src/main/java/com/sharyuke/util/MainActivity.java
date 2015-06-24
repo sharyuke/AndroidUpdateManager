@@ -16,7 +16,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements UpdateManager.OnUpdateStatus {
 
     public static final String UPDATE_DOWN_LOAD_URL = "http://test.yuke.me:9000/public/file/Passionlife.apk";
     public final static String SERVER_URL = "http://api.yuke.me:3000";
@@ -38,14 +38,13 @@ public class MainActivity extends Activity {
                                 .observeOn(AndroidSchedulers.mainThread()),
                         UPDATE_DOWN_LOAD_URL,
                         BuildConfig.VERSION_CODE);
-        updateManager.setOnUpdateStatus(status -> {
-
-        });
+        updateManager.setOnUpdateStatus(this);
         updateManager.setDialogTheme(R.style.dialogTheme);
         updateManager.setOnUpdateProgress(downLoadProgress ->
                 progressView.setText(String.format("%.2f",
                         ((float) downLoadProgress.getProgress()) * 100
                                 / downLoadProgress.getTotalLength())));
+        updateManager.removeOnUpdateStatus(this);
     }
 
     @OnClick(R.id.update)
@@ -64,6 +63,11 @@ public class MainActivity extends Activity {
                 .setLogLevel(RestAdapter.LogLevel.FULL)
                 .setLog(Timber::i)
                 .build();
+    }
+
+    @Override
+    public void onStatusChanged(UpdateManager.Status status) {
+
     }
 
     interface UpdateInterface {

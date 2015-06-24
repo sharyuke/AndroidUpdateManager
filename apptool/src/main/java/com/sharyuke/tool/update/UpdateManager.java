@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit.RetrofitError;
 import rx.Observable;
@@ -59,8 +61,8 @@ public class UpdateManager {
 
     private Bus bus;
 
-    private OnUpdateStatus onUpdateStatus;
-    private OnUpdateProgress onUpdateProgress;
+    private List<OnUpdateStatus> onUpdateStatus = new ArrayList<>();
+    private List<OnUpdateProgress> onUpdateProgress = new ArrayList<>();
 
     private String appName;
 
@@ -165,7 +167,7 @@ public class UpdateManager {
     }
 
     public void deleteCacheFiles() {
-        FileHelper.deleteFile(files);
+        ToastHelper.get(activity).showShort(FileHelper.deleteFile(files) ? R.string.toast_delete_something : R.string.toast_delete_nothing);
     }
 
     private void initProgressDialog() {
@@ -185,15 +187,14 @@ public class UpdateManager {
 
     private void updateStatus(Status status) {
         this.status = status;
-        if (onUpdateStatus != null) {
-            onUpdateStatus.onStatusChanged(status);
+        for (OnUpdateStatus updateStatus : onUpdateStatus) {
+            updateStatus(updateStatus, status);
         }
-
     }
 
-    private void updateProgress(DownLoadProgress downLoadProgress) {
-        if (onUpdateProgress != null) {
-            onUpdateProgress.onProgressChanged(downLoadProgress);
+    private void updateStatus(OnUpdateStatus onUpdateStatus, Status status) {
+        if (onUpdateStatus != null) {
+            onUpdateStatus.onStatusChanged(status);
         }
     }
 
@@ -254,9 +255,15 @@ public class UpdateManager {
         }
     }
 
-    public void updateDownloadProgress(DownLoadProgress progress) {
-        if (onUpdateProgress != null) {
-            onUpdateProgress.onProgressChanged(progress);
+    private void updateDownloadProgress(DownLoadProgress progress) {
+        for (OnUpdateProgress onUpdate : onUpdateProgress) {
+            updateDownloadProgress(onUpdate, progress);
+        }
+    }
+
+    private void updateDownloadProgress(OnUpdateProgress onUpdate, DownLoadProgress progress) {
+        if (onUpdate != null) {
+            onUpdate.onProgressChanged(progress);
         }
     }
 
@@ -470,12 +477,20 @@ public class UpdateManager {
     }
 
     public UpdateManager setOnUpdateStatus(OnUpdateStatus onUpdateStatus) {
-        this.onUpdateStatus = onUpdateStatus;
+        this.onUpdateStatus.add(onUpdateStatus);
         return this;
     }
 
+    public void removeOnUpdateStatus(OnUpdateStatus updateStatus) {
+        onUpdateStatus.remove(updateStatus);
+    }
+
     public void setOnUpdateProgress(OnUpdateProgress onUpdateProgress) {
-        this.onUpdateProgress = onUpdateProgress;
+        this.onUpdateProgress.add(onUpdateProgress);
+    }
+
+    public void removeUpdateDownloadProgress(DownLoadProgress progress) {
+        onUpdateProgress.remove(progress);
     }
 
     public interface OnUpdateStatus {
