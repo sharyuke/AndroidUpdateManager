@@ -12,4 +12,5 @@
     <string name="toast_last_version">your app is the last version</string>
     <string name="toast_delete_something">delete files successfully</string>
     <string name="toast_delete_nothing">no file to delete</string>
+    <string name="toast_delete_downloading">can not delete file ,downloading</string>
 </resources>

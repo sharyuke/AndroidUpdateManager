@@ -27,6 +27,7 @@ import java.util.List;
 
 import retrofit.RetrofitError;
 import rx.Observable;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -167,7 +168,19 @@ public class UpdateManager {
     }
 
     public void deleteCacheFiles() {
-        ToastHelper.get(activity).showShort(FileHelper.deleteFile(files) ? R.string.toast_delete_something : R.string.toast_delete_nothing);
+        int tipsRes = 0;
+        switch (status) {
+            case NORMAL:
+                tipsRes = FileHelper.deleteFile(files) ? R.string.toast_delete_something : R.string.toast_delete_nothing;
+                break;
+            case CHECKING:
+                tipsRes = FileHelper.deleteFile(files) ? R.string.toast_delete_something : R.string.toast_delete_nothing;
+                break;
+            case DOWNLOADING:
+                tipsRes = R.string.toast_delete_downloading;
+                break;
+        }
+        ToastHelper.get(activity).showShort(tipsRes);
     }
 
     private void initProgressDialog() {
@@ -419,57 +432,60 @@ public class UpdateManager {
 
 
     public Observable<DownLoadProgress> get(String url) {
-        return Observable.create(subscriber -> {
-            Request request = new Request.Builder().url(url).build();
-            Response response = null;
-            File apkFile = new File(downloadAppName);
-            if (apkFile.exists()) {
-                Timber.d("apk file is exist and install it directly");
-                handler.sendEmptyMessage(RESET);
-                return;
-            }
-            FileOutputStream fos = null;
-            InputStream inputStream = null;
-            UpdateManager.DownLoadProgress downLoadProgress = new UpdateManager.DownLoadProgress();
-            try {
-                fos = new FileOutputStream(apkFile);
-                response = client.newCall(request).execute();
-
-                if (response.code() == 200) {
-                    inputStream = response.body().byteStream();
-                    byte[] buff = new byte[1024 * 4];
-                    long downloaded = 0;
-                    long target = response.body().contentLength();
-                    downLoadProgress.setTotalLength(target);
-                    subscriber.onStart();
-                    subscriber.onNext(downLoadProgress.setProgress(0));
-                    int hasRead = 0;
-                    long lastUpdate = System.currentTimeMillis();
-                    while ((hasRead = inputStream.read(buff)) != -1) {
-                        downloaded += hasRead;
-                        fos.write(buff, 0, hasRead);
-
-                        if (System.currentTimeMillis() - lastUpdate > 100) {
-                            lastUpdate = System.currentTimeMillis();
-                            subscriber.onNext(downLoadProgress.setProgress(downloaded));
-                        }
-                    }
-                    subscriber.onNext(downLoadProgress.setProgress(target));
-                    subscriber.onCompleted();
-                } else if (response.code() == 404) {
-                    subscriber.onError(new IOException(RES_404));
-                } else {
-                    subscriber.onError(new IOException());
+        return Observable.create(new Observable.OnSubscribe<DownLoadProgress>() {
+            @Override
+            public void call(Subscriber<? super DownLoadProgress> subscriber) {
+                Request request = new Request.Builder().url(url).build();
+                Response response = null;
+                File apkFile = new File(downloadAppName);
+                if (apkFile.exists()) {
+                    Timber.d("apk file is exist and install it directly");
+                    handler.sendEmptyMessage(RESET);
+                    return;
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-                subscriber.onError(e);
-            } finally {
-                if (inputStream != null) {
-                    try {
-                        inputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                FileOutputStream fos = null;
+                InputStream inputStream = null;
+                UpdateManager.DownLoadProgress downLoadProgress = new UpdateManager.DownLoadProgress();
+                try {
+                    fos = new FileOutputStream(apkFile);
+                    response = client.newCall(request).execute();
+
+                    if (response.code() == 200) {
+                        inputStream = response.body().byteStream();
+                        byte[] buff = new byte[1024 * 4];
+                        long downloaded = 0;
+                        long target = response.body().contentLength();
+                        downLoadProgress.setTotalLength(target);
+                        subscriber.onStart();
+                        subscriber.onNext(downLoadProgress.setProgress(0));
+                        int hasRead = 0;
+                        long lastUpdate = System.currentTimeMillis();
+                        while ((hasRead = inputStream.read(buff)) != -1) {
+                            downloaded += hasRead;
+                            fos.write(buff, 0, hasRead);
+
+                            if (System.currentTimeMillis() - lastUpdate > 100) {
+                                lastUpdate = System.currentTimeMillis();
+                                subscriber.onNext(downLoadProgress.setProgress(downloaded));
+                            }
+                        }
+                        subscriber.onNext(downLoadProgress.setProgress(target));
+                        subscriber.onCompleted();
+                    } else if (response.code() == 404) {
+                        subscriber.onError(new IOException(RES_404));
+                    } else {
+                        subscriber.onError(new IOException());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    subscriber.onError(e);
+                } finally {
+                    if (inputStream != null) {
+                        try {
+                            inputStream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
