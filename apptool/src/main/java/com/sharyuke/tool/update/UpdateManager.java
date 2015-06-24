@@ -450,8 +450,8 @@ public class UpdateManager {
         return this;
     }
 
-    public static void setmUpdateManager(UpdateManager mUpdateManager) {
-        UpdateManager.mUpdateManager = mUpdateManager;
+    public void setOnUpdateProgress(OnUpdateProgress onUpdateProgress) {
+        this.onUpdateProgress = onUpdateProgress;
     }
 
     public interface OnUpdateStatus {
