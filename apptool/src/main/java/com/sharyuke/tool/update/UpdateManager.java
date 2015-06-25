@@ -481,15 +481,15 @@ public class UpdateManager {
      * @param onUpdateStatus listener
      * @return UpdateManager
      */
-    public UpdateManager setOnUpdateStatusList(OnUpdateStatus onUpdateStatus) {
+    public UpdateManager setOnStatusUpdateListener(OnUpdateStatus onUpdateStatus) {
         this.onUpdateStatusList.add(onUpdateStatus);
         if (onUpdateStatusList.size() > 5) {
-            removeOnUpdateStatus(onUpdateStatusList.get(0));
+            removeStatusListener(onUpdateStatusList.get(0));
         }
         return this;
     }
 
-    public void removeOnUpdateStatus(OnUpdateStatus updateStatus) {
+    public void removeStatusListener(OnUpdateStatus updateStatus) {
         onUpdateStatusList.remove(updateStatus);
     }
 
@@ -499,15 +499,15 @@ public class UpdateManager {
      * @param onUpdateProgress listener
      * @return UpdateManager
      */
-    public UpdateManager setOnUpdateProgressList(OnUpdateProgress onUpdateProgress) {
+    public UpdateManager setOnProgressUpdateListener(OnUpdateProgress onUpdateProgress) {
         this.onUpdateProgressList.add(onUpdateProgress);
         if (onUpdateProgressList.size() > 5) {
-            removeUpdateDownloadProgress(onUpdateProgressList.get(0));
+            removeProgressListener(onUpdateProgressList.get(0));
         }
         return this;
     }
 
-    public void removeUpdateDownloadProgress(OnUpdateProgress progress) {
+    public void removeProgressListener(OnUpdateProgress progress) {
         onUpdateProgressList.remove(progress);
     }
 

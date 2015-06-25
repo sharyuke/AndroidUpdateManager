@@ -38,13 +38,13 @@ public class MainActivity extends Activity implements UpdateManager.OnUpdateStat
                                 .observeOn(AndroidSchedulers.mainThread()),
                         UPDATE_DOWN_LOAD_URL,
                         BuildConfig.VERSION_CODE);
-        updateManager.setOnUpdateStatusList(this);
+        updateManager.setOnStatusUpdateListener(this);
         updateManager.setDialogTheme(R.style.dialogTheme);
-        updateManager.setOnUpdateProgressList(downLoadProgress ->
+        updateManager.setOnProgressUpdateListener(downLoadProgress ->
                 progressView.setText(String.format("%.2f",
                         ((float) downLoadProgress.getProgress()) * 100
                                 / downLoadProgress.getTotalLength())));
-        updateManager.removeOnUpdateStatus(this);
+        updateManager.removeStatusListener(this);
     }
 
     @OnClick(R.id.update)
