@@ -1,4 +1,4 @@
-package com.sharyuke.design.model;
+package com.sharyuke.tool.model;
 
 /**
  * ProgressModel

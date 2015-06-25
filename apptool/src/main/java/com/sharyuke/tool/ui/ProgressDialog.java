@@ -1,8 +1,10 @@
-package com.sharyuke.design;
+package com.sharyuke.tool.ui;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.widget.TextView;
+
+import com.sharyuke.tool.R;
 
 /**
  * ProgressDialog

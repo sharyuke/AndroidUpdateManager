@@ -1,4 +1,4 @@
-package com.sharyuke.design;
+package com.sharyuke.tool.ui;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -6,6 +6,8 @@ import android.graphics.Paint;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.widget.TextView;
+
+import com.sharyuke.tool.R;
 
 /**
  * ProgressTextView

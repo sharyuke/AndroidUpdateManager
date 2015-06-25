@@ -10,9 +10,9 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 
-import com.sharyuke.design.ProgressDialog;
-import com.sharyuke.design.model.ProgressModel;
 import com.sharyuke.tool.R;
+import com.sharyuke.tool.model.ProgressModel;
+import com.sharyuke.tool.ui.ProgressDialog;
 import com.sharyuke.tool.util.FileHelper;
 import com.sharyuke.tool.util.ToastHelper;
 import com.squareup.okhttp.OkHttpClient;

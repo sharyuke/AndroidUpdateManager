@@ -2,6 +2,6 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
 
     <stroke
-        android:width="@dimen/progress_bar_border"
+        android:width="0.3dp"
         android:color="#123022" />
 </shape>
