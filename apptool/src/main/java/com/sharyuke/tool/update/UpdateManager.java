@@ -475,17 +475,8 @@ public class UpdateManager {
         });
     }
 
-    /**
-     * listeners should be not more than 5 in case memory leak
-     *
-     * @param onUpdateStatus listener
-     * @return UpdateManager
-     */
     public UpdateManager setOnStatusUpdateListener(OnUpdateStatus onUpdateStatus) {
         this.onUpdateStatusList.add(onUpdateStatus);
-        if (onUpdateStatusList.size() > 5) {
-            removeStatusListener(onUpdateStatusList.get(0));
-        }
         return this;
     }
 
@@ -493,17 +484,8 @@ public class UpdateManager {
         onUpdateStatusList.remove(updateStatus);
     }
 
-    /**
-     * listeners should be not more than 5 in case memory leak
-     *
-     * @param onUpdateProgress listener
-     * @return UpdateManager
-     */
     public UpdateManager setOnProgressUpdateListener(OnUpdateProgress onUpdateProgress) {
         this.onUpdateProgressList.add(onUpdateProgress);
-        if (onUpdateProgressList.size() > 5) {
-            removeProgressListener(onUpdateProgressList.get(0));
-        }
         return this;
     }
 
