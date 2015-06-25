@@ -182,10 +182,21 @@ public class UpdateManager {
                 tipsRes = R.string.toast_delete_downloading;
                 break;
         }
-        ToastHelper.get(activity).showShort(tipsRes);
+        if (activity != null) {
+            ToastHelper.get(activity).showShort(tipsRes);
+        } else {
+            Timber.d("delete files--> while activity is null");
+        }
     }
 
-    private void initProgressDialog() {
+    private void preDown(boolean showDownloadDialog) {
+        if (showDownloadDialog) {
+            initDownloadDialog();
+        }
+        updateStatus(Status.DOWNLOADING);
+    }
+
+    private void initDownloadDialog() {
         if (dialogTheme != 0) {
             updateProgressDialog = new ProgressDialog(activity, dialogTheme);
         } else {
@@ -193,7 +204,6 @@ public class UpdateManager {
         }
         updateProgressDialog.setProgressTitle(activity.getText(R.string.dialog_downloading_msg));
         updateProgressDialog.show();
-        updateStatus(Status.DOWNLOADING);
     }
 
     private void updateStatus(Status status) {
@@ -221,7 +231,15 @@ public class UpdateManager {
         checkUpdate(activity, isSaliently, downloadUrl);
     }
 
+    public void checkUpdate(Activity activity, boolean isSaliently, boolean showDownloadDialog) {
+        checkUpdate(activity, isSaliently, downloadUrl, showDownloadDialog);
+    }
+
     public void checkUpdate(Activity activity, boolean isSaliently, String downloadUrl) {
+        checkUpdate(activity, isSaliently, downloadUrl, true);
+    }
+
+    public void checkUpdate(Activity activity, boolean isSaliently, String downloadUrl, boolean showDownloadDialog) {
         this.downloadUrl = downloadUrl;
         this.activity = activity;
         switch (status) {
@@ -231,13 +249,13 @@ public class UpdateManager {
                         .doOnError(throwable1 -> updateStatus(Status.NORMAL))
                         .doOnError((throwable2) -> handleError(throwable2, isSaliently))
                         .onErrorResumeNext(Observable.empty())
-                        .subscribe((updateResModel) -> versionInfo(updateResModel, isSaliently)));
+                        .subscribe((updateResModel) -> versionInfo(updateResModel, isSaliently, showDownloadDialog)));
                 break;
             case CHECKING:
                 updateStatus(Status.CHECKING);
                 break;
             case DOWNLOADING:
-                initProgressDialog();
+                preDown(showDownloadDialog);
                 break;
         }
     }
@@ -278,7 +296,7 @@ public class UpdateManager {
         }
     }
 
-    private void download(Activity activity, String url, String versionName) {
+    private void download(Activity activity, String url, String versionName, boolean showDownloadDialog) {
         this.activity = activity;
         switch (status) {
             case NORMAL:
@@ -286,11 +304,11 @@ public class UpdateManager {
             case CHECKING:
                 return;
             case DOWNLOADING:
-                initProgressDialog();
+                preDown(showDownloadDialog);
                 return;
         }
         initFileName(versionName);
-        initProgressDialog();
+        preDown(showDownloadDialog);
         subscription.add(get(url)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -331,7 +349,7 @@ public class UpdateManager {
         downloadAppName = dir + appName + "-" + versionName + UPDATE_STUFF_SAVE_NAME;
     }
 
-    private void versionInfo(ResUpdateModel resCheckVersion, boolean isSaliently) {
+    private void versionInfo(ResUpdateModel resCheckVersion, boolean isSaliently, boolean showDownloadDialog) {
         if (resCheckVersion.getVersionCode() > versionCode) {
             AlertDialog.Builder builder;
             if (dialogTheme != 0 && Build.VERSION.SDK_INT > 11) {
@@ -344,7 +362,7 @@ public class UpdateManager {
                     .setMessage(activity.getString(R.string.dialog_update_msg, resCheckVersion.getVersionName()))
                     .setPositiveButton(R.string.dialog_update_btnupdate, (dialog, which) -> {
                         updateStatus(Status.NORMAL);
-                        download(activity, downloadUrl, resCheckVersion.getVersionName());
+                        download(activity, downloadUrl, resCheckVersion.getVersionName(), showDownloadDialog);
                     })
                     .setNegativeButton(R.string.dialog_update_btnnext, (dialog, which) -> {
                         activity.finish();
@@ -365,7 +383,7 @@ public class UpdateManager {
     }
 
     public void downLoadDebug(Activity activity, String url, String versionName) {
-        download(activity, url, versionName);
+        download(activity, url, versionName, true);
     }
 
     public void cancelDownLoad() {

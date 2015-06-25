@@ -44,6 +44,7 @@ public class ProgressTextView extends TextView {
     protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         double p = (double) progress / (double) total;
-        canvas.drawRect(0, 0, (float) (p * getWidth()), getHeight(), paint);
+        float border = getResources().getDimension(R.dimen.progress_bar_border);
+        canvas.drawRect(border, border, (float) (p * getWidth()) - 2 * border, getHeight() - 2 * border, paint);
     }
 }
