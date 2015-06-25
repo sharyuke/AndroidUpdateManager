@@ -7,7 +7,7 @@ Android UpdateManager Introduce
 
 ---
 ######1.2.7 release note
-更新下载进度框界面，显示可读长度 kb, mb gb等
+更新下载进度框界面，显示可读长度 kb, mb gb等,重命名了监听器
 
 ######1.2.5 release note listeners should not more than 5 in case memory leak
 监听器不能超过5个，防止内存泄漏 , 修改监听器方法错误
