@@ -6,6 +6,9 @@ Android UpdateManager Introduce
 ![view](view.gif)
 
 ---
+######1.2.8 release note
+不再移除监听器，单设置的监听器一定要记得手动移除
+
 ######1.2.7 release note
 更新下载进度框界面，显示可读长度 kb, mb gb等,重命名了监听器
 
