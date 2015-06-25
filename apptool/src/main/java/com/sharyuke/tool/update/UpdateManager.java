@@ -2,7 +2,6 @@ package com.sharyuke.tool.update;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -11,6 +10,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 
+import com.sharyuke.design.ProgressDialog;
+import com.sharyuke.design.model.ProgressModel;
 import com.sharyuke.tool.R;
 import com.sharyuke.tool.util.FileHelper;
 import com.sharyuke.tool.util.ToastHelper;
@@ -190,11 +191,7 @@ public class UpdateManager {
         } else {
             updateProgressDialog = new ProgressDialog(activity);
         }
-        updateProgressDialog.setMessage(activity.getText(R.string.dialog_downloading_msg));
-        updateProgressDialog.setIndeterminate(false);
-        updateProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        updateProgressDialog.setMax(100);
-        updateProgressDialog.setProgress(0);
+        updateProgressDialog.setProgressTitle(activity.getText(R.string.dialog_downloading_msg));
         updateProgressDialog.show();
         updateStatus(Status.DOWNLOADING);
     }
@@ -263,19 +260,19 @@ public class UpdateManager {
         }
     }
 
-    private void sendProgress(DownLoadProgress downLoadProgress) {
+    private void sendProgress(ProgressModel progressModel) {
         if (bus != null) {
-            bus.post(downLoadProgress);
+            bus.post(progressModel);
         }
     }
 
-    private void updateDownloadProgress(DownLoadProgress progress) {
+    private void updateDownloadProgress(ProgressModel progress) {
         for (OnUpdateProgress onUpdate : onUpdateProgressList) {
             updateDownloadProgress(onUpdate, progress);
         }
     }
 
-    private void updateDownloadProgress(OnUpdateProgress onUpdate, DownLoadProgress progress) {
+    private void updateDownloadProgress(OnUpdateProgress onUpdate, ProgressModel progress) {
         if (onUpdate != null) {
             onUpdate.onProgressChanged(progress);
         }
@@ -298,8 +295,8 @@ public class UpdateManager {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(downLoadProgress -> {
-                    updateProgressDialog.setMax((int) downLoadProgress.getTotalLength());
-                    updateProgressDialog.setProgress((int) downLoadProgress.getProgress());
+                    updateProgressDialog.setTotalLength((int) downLoadProgress.getTotalLength());
+                    updateProgressDialog.setProgressLength((int) downLoadProgress.getProgress());
                     sendProgress(downLoadProgress);
                     updateDownloadProgress(downLoadProgress);
                 })
@@ -382,9 +379,9 @@ public class UpdateManager {
 
     private void reset() {
         updateStatus(Status.NORMAL);
-        DownLoadProgress downLoadProgress = new DownLoadProgress();
-        sendProgress(downLoadProgress);
-        updateDownloadProgress(downLoadProgress);
+        ProgressModel progressModel = new ProgressModel();
+        sendProgress(progressModel);
+        updateDownloadProgress(progressModel);
     }
 
     private void update() {
@@ -398,44 +395,11 @@ public class UpdateManager {
         reset();
     }
 
-    public static class DownLoadProgress {
-        public long progress = 0;
-        public long totalLength = 1;
 
-        public boolean isComplete() {
-            return progress == totalLength;
-        }
-
-        public long getProgress() {
-            return progress;
-        }
-
-        public DownLoadProgress setProgress(long progress) {
-            this.progress = progress;
-            return this;
-        }
-
-        public long getTotalLength() {
-            return totalLength;
-        }
-
-        public DownLoadProgress setTotalLength(long totalLength) {
-            this.totalLength = totalLength;
-            return this;
-        }
-
-        public DownLoadProgress reset() {
-            this.progress = 0;
-            this.totalLength = 1;
-            return this;
-        }
-    }
-
-
-    public Observable<DownLoadProgress> get(String url) {
-        return Observable.create(new Observable.OnSubscribe<DownLoadProgress>() {
+    public Observable<ProgressModel> get(String url) {
+        return Observable.create(new Observable.OnSubscribe<ProgressModel>() {
             @Override
-            public void call(Subscriber<? super DownLoadProgress> subscriber) {
+            public void call(Subscriber<? super ProgressModel> subscriber) {
                 Request request = new Request.Builder().url(url).build();
                 Response response = null;
                 File apkFile = new File(downloadAppName);
@@ -446,7 +410,7 @@ public class UpdateManager {
                 }
                 FileOutputStream fos = null;
                 InputStream inputStream = null;
-                UpdateManager.DownLoadProgress downLoadProgress = new UpdateManager.DownLoadProgress();
+                ProgressModel progressModel = new ProgressModel();
                 try {
                     fos = new FileOutputStream(apkFile);
                     response = client.newCall(request).execute();
@@ -456,9 +420,9 @@ public class UpdateManager {
                         byte[] buff = new byte[1024 * 4];
                         long downloaded = 0;
                         long target = response.body().contentLength();
-                        downLoadProgress.setTotalLength(target);
+                        progressModel.setTotalLength(target);
                         subscriber.onStart();
-                        subscriber.onNext(downLoadProgress.setProgress(0));
+                        subscriber.onNext(progressModel.setProgress(0));
                         int hasRead = 0;
                         long lastUpdate = System.currentTimeMillis();
                         while ((hasRead = inputStream.read(buff)) != -1) {
@@ -467,10 +431,10 @@ public class UpdateManager {
 
                             if (System.currentTimeMillis() - lastUpdate > 100) {
                                 lastUpdate = System.currentTimeMillis();
-                                subscriber.onNext(downLoadProgress.setProgress(downloaded));
+                                subscriber.onNext(progressModel.setProgress(downloaded));
                             }
                         }
-                        subscriber.onNext(downLoadProgress.setProgress(target));
+                        subscriber.onNext(progressModel.setProgress(target));
                         subscriber.onCompleted();
                     } else if (response.code() == 404) {
                         subscriber.onError(new IOException(RES_404));
@@ -494,7 +458,7 @@ public class UpdateManager {
     }
 
     /**
-     * listeners should not more than 5 in case memory leak
+     * listeners should be not more than 5 in case memory leak
      *
      * @param onUpdateStatus listener
      * @return UpdateManager
@@ -512,7 +476,7 @@ public class UpdateManager {
     }
 
     /**
-     * listeners should not more than 5 in case memory leak
+     * listeners should be not more than 5 in case memory leak
      *
      * @param onUpdateProgress listener
      * @return UpdateManager
@@ -534,7 +498,7 @@ public class UpdateManager {
     }
 
     public interface OnUpdateProgress {
-        void onProgressChanged(DownLoadProgress downLoadProgress);
+        void onProgressChanged(ProgressModel progressModel);
     }
 
 }
